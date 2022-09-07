@@ -22,17 +22,31 @@ function New-AuthenticationHeader {
     param(
         [parameter(Mandatory = $true, HelpMessage = "Pass the AuthenticationResult object returned from Get-AccessToken cmdlet.")]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Identity.Client.AuthenticationResult]$AccessToken
+        $AccessToken,
+        [parameter(Mandatory = $false, HelpMessage = "Specify to not load and use PS.MSAL")]
+        [switch]$SkipMSAL
     )
     Process {
-        # Construct default header parameters
-        $AuthenticationHeader = @{
-            "Content-Type" = "application/json"
-            "Authorization" = $AccessToken.CreateAuthorizationHeader()
-            "ExpiresOn" = $AccessToken.ExpiresOn.UTCDateTime
-        }
-
+        if($SkipMSAL){
+            # Construct default header parameters
+            $AuthenticationHeader = @{
+                "Content-Type" = "application/json"
+                "Authorization" = "Bearer $($accessToken.access_token)"
+                ExpiresOn = [System.DateTimeOffset][datetime]::UtcNow.AddSeconds($AccessToken.expires_in)
+                
+               
+            }
+        }else{
+            # Construct default header parameters
+                $AuthenticationHeader = @{
+                    "Content-Type" = "application/json"
+                    "Authorization" = [Microsoft.Identity.Client.AuthenticationResult]$AccessToken.CreateAuthorizationHeader()
+                    "ExpiresOn" = [Microsoft.Identity.Client.AuthenticationResult]$AccessToken.ExpiresOn.UTCDateTime
+                }
+            }
         # Handle return value
         return $AuthenticationHeader
     }
 }
+
+
