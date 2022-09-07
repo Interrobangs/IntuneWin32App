@@ -33,8 +33,6 @@ function New-AuthenticationHeader {
                 "Content-Type" = "application/json"
                 "Authorization" = "Bearer $($accessToken.access_token)"
                 ExpiresOn = [System.DateTimeOffset][datetime]::UtcNow.AddSeconds($AccessToken.expires_in)
-                
-               
             }
         }else{
             # Construct default header parameters
